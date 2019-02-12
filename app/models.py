@@ -12,6 +12,11 @@ class Company(db.Model):
         self.company = company
 
 
+users_skills = db.Table('users_skills',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.user_id'), primary_key=True),
+    db.Column('skill_id', db.Integer, db.ForeignKey('skills.skill_id'), primary_key=True)
+)
+
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -23,6 +28,8 @@ class User(db.Model):
     phone = db.Column(db.String(255))
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
+
+    skills = db.relationship("Skill", secondary=users_skills, lazy="dynamic", backref=db.backref("users", lazy="dynamic"))
 
     def __init__(self, email, name, picture, company, phone, latitude, longitude):
         self.email = email
@@ -46,9 +53,3 @@ class Skill(db.Model):
     def __init__(self, skill_name, rating):
         self.skill_name = skill_name
         self.rating = rating
-
-
-users_skills = db.Table('users_skills',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.user_id'), primary_key=True),
-    db.Column('skill_id', db.Integer, db.ForeignKey('skill.skill_id'), primary_key=True)
-)
