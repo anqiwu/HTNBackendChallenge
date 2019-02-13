@@ -14,8 +14,9 @@ class Company(db.Model):
 
 users_skills = db.Table('users_skills',
     db.Column('user_id', db.Integer, db.ForeignKey('users.user_id'), primary_key=True),
-    db.Column('skill_id', db.Integer, db.ForeignKey('skills.skill_id'), primary_key=True)
+    db.Column('skill_with_rating_id', db.Integer, db.ForeignKey('skills_with_rating.skill_with_rating_id'), primary_key=True)
 )
+
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -29,7 +30,8 @@ class User(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
 
-    skills = db.relationship("Skill", secondary=users_skills, lazy="dynamic", backref=db.backref("users", lazy="dynamic"))
+    skills_with_rating = db.relationship("SkillWithRating", secondary=users_skills,
+                                         lazy="dynamic", backref=db.backref("users", lazy="dynamic"))
 
     def __init__(self, email, name, picture, company, phone, latitude, longitude):
         self.email = email
@@ -41,15 +43,27 @@ class User(db.Model):
         self.longitude = longitude
 
 
+class SkillWithRating(db.Model):
+    __tablename__ = 'skills_with_rating'
+
+    skill_with_rating_id = db.Column(db.Integer, primary_key=True)
+    skill_name = db.Column(db.String(255), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    skill_id = db.Column(db.Integer, db.ForeignKey('skills.skill_id'))
+
+    db.UniqueConstraint('skill_name', 'rating')
+
+    def __init__(self, skill_name, rating, skill_id):
+        self.skill_name = skill_name
+        self.rating = rating
+        self.skill_id = skill_id
+
+
 class Skill(db.Model):
     __tablename__ = 'skills'
 
     skill_id = db.Column(db.Integer, primary_key=True)
-    skill_name = db.Column(db.String(255), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)
+    skill_name = db.Column(db.String(255), nullable=False, unique=True)
 
-    db.UniqueConstraint('skill_name', 'rating')
-
-    def __init__(self, skill_name, rating):
+    def __init__(self, skill_name):
         self.skill_name = skill_name
-        self.rating = rating

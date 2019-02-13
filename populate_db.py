@@ -71,17 +71,19 @@ def parse_json(list_of_users, conn):
         for skill in all_skills:
             skill_name = skill["name"]
             rating = skill["rating"]
-            cur.execute(queries.sql_insert_skill, (skill_name, rating))
+            cur.execute(queries.sql_insert_skill, (skill_name,))
+            val = cur.execute(""" SELECT skills.skill_id FROM skills WHERE skills.skill_name='{}'""".format(skill_name)).fetchone()
+            cur.execute(queries.sql_insert_skill_with_rating, (skill_name, rating, val[0]))
 
     conn.commit()
 
 
 def update_junction_table(conn, users):
     for index, user in enumerate(users):
-        sql_junc_tb = '''INSERT INTO users_skills (user_id, skill_id)
+        sql_junc_tb = '''INSERT INTO users_skills (user_id, skill_with_rating_id)
                                 SELECT users.user_id AS user_id,
-                                        skills.skill_id AS skill_id
-                                        FROM users CROSS JOIN skills WHERE'''
+                                        skills_with_rating.skill_with_rating_id AS skill_with_rating_id
+                                        FROM users CROSS JOIN skills_with_rating WHERE'''
         skills = user["skills"]
         cur = conn.cursor()
         for skill in skills[:-1]:
@@ -112,6 +114,7 @@ def main():
         print("Dropping all tables from db")
         drop_table(conn, queries.sql_drop_users_skills_table)
         drop_table(conn, queries.sql_drop_skills_table)
+        drop_table(conn, queries.sql_drop_skills_with_rating_table)
         drop_table(conn, queries.sql_drop_users_table)
         drop_table(conn, queries.sql_drop_companies_table)
 
@@ -119,6 +122,7 @@ def main():
         create_table(conn, queries.sql_create_companies_table)
         create_table(conn, queries.sql_create_users_table)
         create_table(conn, queries.sql_create_skills_table)
+        create_table(conn, queries.sql_create_skills_with_rating_table)
         create_table(conn, queries.sql_create_users_skills_table)
         conn.commit()
     else:

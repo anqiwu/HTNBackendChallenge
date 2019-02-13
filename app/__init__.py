@@ -9,4 +9,4 @@ app.config.from_object('config')
 
 db = SQLAlchemy(app)
 
-from app.controllers import index, get_all_users
+from app.controllers import get_users, user_by_id
