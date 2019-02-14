@@ -9,4 +9,5 @@ app.config.from_object('config')
 
 db = SQLAlchemy(app)
 
-from app.controllers import get_users, user_by_id
+from app.routes.User import get_users
+from app.routes.Skill import skill_method
