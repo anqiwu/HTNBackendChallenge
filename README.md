@@ -18,21 +18,18 @@ A RESTful API server implemented using Flask and SQLite database to store and wo
 - [API](#API)
     - [Endpoints](#Endpoints)
     - [/users](#users)
-    - [/users/id](#/users_id)
+    - [/users/id](#/user_id)
     - [/skills](#skills)
 
-<a name="libanddep"/>
-# Libraries and Dependencies
+# Libraries and Dependencies <a name="libanddep"/>
 
 - Flask
 - Flask-SQLAlchemy for ORM
 - sqlite3 for raw sql queries when populating the initial db 
 
-<a name="startserverlocally"/>
-# Start the Server Locally
+# Start the Server Locally <a name="startserverlocally"/>
 
-<a name="populatedb"/>
-## Populate database
+## Populate database <a name="populatedb"/>
 
 Run the script `populate_db.py` to populate the SQLite database with data from: https://htn-interviews.firebaseio.com/users.json
 The database can be found under `HTN_BackendChallenge/db/data.db`
@@ -40,15 +37,13 @@ Can be run with argument `--drop_all`, this will wipe the entire database before
 
 The script creates 4 tables: `companies`, `users`, `skills` and `users_skills`, which is association object that links `User` to `Skill` with an additional column for the `rating`.
 
-<a name="startserver"/>
-## Start Server
+## Start Server <a name="startserver"/>
 
 - start the venv, `source venv/Scripts/activate` from `HTN_Backend_Challenge` directory
 - In `HTN_BackendChallenge`, do `export FLASK_APP=app.py`
 - `python -m flask run` to start the server locally
 
-<a name="databasedesign"/>
-# Database Design
+# Database Design <a name="databasedesign"/>
 
 ## Models
 
@@ -130,8 +125,7 @@ class UserSkill(db.Model):
 - /users/id
 - /skills
 
-<a name="users"/>
-## /users
+## /users <a name="users"/>
 
 ### GET request
 
@@ -198,8 +192,7 @@ EXAMPLE:
 ]
 ```
 
-<a name="user_id"/>
-## /users/id
+## /users/id <a name="user_id"/>
 
 ### GET request
 
@@ -297,8 +290,8 @@ to
 }
 ```
 
-<a name="skills"/>
-## /skills
+
+## /skills <a name="skills"/>
 
 ### GET request
 
