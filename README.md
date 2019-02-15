@@ -4,28 +4,28 @@ A RESTful API server implemented using Flask and SQLite database to store and wo
 
 # Table of Contents
 
-- [Libraries and Dependencies](#libanddep)
-- [Start the Server Locally](#startserverlocally)
-	- [Populate database](#populatedb)
-	- [Start Server](#startserver)
-- [Database Design](#databasedesign)
-	- [Models](#models)
-	- [Overview](#overview)
-	- [Company](#company)
-	- [User](#user)
-	- [Skill](#skill)
-	- [UserSkill](#userskill)
-- [API](#api)
-    - [Endpoints](#endpoints)
-    - [/users](#users)
-    - [/users/id](#users/id)
-    - [/skills](#skills)
+- [Libraries and Dependencies](#Libraries and Dependencies)
+- [Start the Server Locally](#Start the Server Locally)
+	- [Populate database](#Populate database)
+	- [Start Server](#Start Server)
+- [Database Design](#Database Design)
+	- [Models](#Models)
+	- [Overview](#Overview)
+	- [Company](#Company)
+	- [User](#User)
+	- [Skill](#Skill)
+	- [UserSkill](#UserSkill)
+- [API](#API)
+    - [Endpoints](#Endpoints)
+    - [/users](#/users)
+    - [/users/id](#/users/id)
+    - [/skills](#/skills)
 
 # Libraries and Dependencies
 
 - Flask
 - Flask-SQLAlchemy for ORM
-- sqlite3 for raw sql queries when populating the initial db
+- sqlite3 for raw sql queries when populating the initial db 
 
 # Start the Server Locally
 
