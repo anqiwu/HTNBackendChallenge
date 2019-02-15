@@ -1,9 +1,8 @@
-from flask import jsonify
 from flask import request
 from sqlalchemy import and_
 from app.models.User import User
-from app.models.SkillWithRating import SkillWithRating
 from app.models.Skill import Skill
+from app.models.UserSkill import UserSkill
 from app import db
 import sys
 
@@ -24,12 +23,11 @@ class UserController:
         user_json["latitude"] = user.latitude
         user_json["longitude"] = user.longitude
         user_json["skills"] = []
-        user_skills = user.skills_with_rating
-
-        for skill in user_skills:
+        user_skills = user.skills
+        for assoc in user_skills:
             skill_json = dict()
-            skill_json["name"] = skill.skill_name
-            skill_json["rating"] = skill.rating
+            skill_json["name"] = assoc.skill.skill_name
+            skill_json["rating"] = assoc.rating
             user_json["skills"].append(skill_json)
         return user_json
 
@@ -52,6 +50,40 @@ class UserController:
         if "longitude" in req_content and isinstance(req_content["longitude"], float):
             user.longitude = req_content["longitude"]
         if "skills" in req_content:
+            for skill in req_content["skills"]:
+                name = skill["name"]
+                rating = skill["rating"]
+                if not isinstance(name, str) or not isinstance(rating, int):
+                    continue
+                # a new skill
+                skill_in_db = db.session.query(Skill).filter(Skill.skill_name == name).first()
+                if skill_in_db:
+                    assoc = db.session.query(UserSkill).filter(
+                        and_(UserSkill.user_id == user_id, UserSkill.skill_id == skill_in_db.skill_id)).first()
+                if skill_in_db is None:
+                    print("one", file=sys.stderr)
+                    # add the skill the the `skills` table
+                    new_skill = Skill(name)
+                    user_skill = UserSkill(rating=rating)
+                    user_skill.user = db.session.query(User).filter(User.user_id == user_id).first()
+                    new_skill.users.append(user_skill)
+                # skill in db that the the user don't have
+                elif assoc is None:
+                    print("two", file=sys.stderr)
+                    skill = db.session.query(Skill).filter(Skill.skill_name == name).first()
+                    user_skill = UserSkill(rating=rating)
+                    user_skill.user = db.session.query(User).filter(User.user_id == user_id).first()
+                    skill.users.append(user_skill)
+                # skill in db that user have, need to update:
+                else:
+                    print("three", file=sys.stderr)
+                    assoc.rating = rating
+
+        db.session.commit()
+        return UserController.get(user_id)
+
+'''
+            
             # get all current skills for user_id
             skills_for_user = user.skills_with_rating
             for skill in req_content["skills"]:
@@ -101,16 +133,13 @@ class UserController:
                         skill_to_add = SkillWithRating(
                             name, rating, db.session.query(Skill).filter(Skill.skill_name == name).first().skill_id)
                         db.session.add(skill_to_add)
-                    
+
                     # get the new skill to add from the skill_with_ratings table
                     skill_to_add = db.session.query(SkillWithRating).filter(
                         and_(SkillWithRating.skill_name == name, SkillWithRating.rating == rating)).first()
 
                 user.skills_with_rating.append(skill_to_add)
-        db.session.commit()
-        return UserController.get(user_id)
 
-'''
                 if db.session.query(Skill).filter(Skill.skill_name == name).first() is None:
                     print("one", file=sys.stderr)
                     # add the skill the the `skills` table

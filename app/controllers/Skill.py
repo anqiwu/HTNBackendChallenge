@@ -1,6 +1,7 @@
 from app import db
 from app.models.Skill import Skill
-from app.models.SkillWithRating import SkillWithRating
+from app.models.UserSkill import UserSkill
+from sqlalchemy.sql import func
 
 
 class SkillController:
@@ -16,14 +17,10 @@ class SkillController:
             skill_dict = dict()
             skill_dict["name"] = skill.skill_name
             skill_id = skill.skill_id
-            all_skill_with_ratings = db.session.query(SkillWithRating).filter(SkillWithRating.skill_id == skill_id)
-            frequency = 0
-            average_rating = 0
-            for one_skill_with_rating in all_skill_with_ratings:
-                count = one_skill_with_rating.users.count()
-                frequency += count
-                average_rating += count * one_skill_with_rating.rating
-            average_rating = float("{0:.2f}".format(average_rating / frequency))
+            all_users_with_skill = db.session.query(UserSkill).filter(UserSkill.skill_id == skill_id)
+            rating_sum = db.session.query(func.sum(UserSkill.rating)).filter(UserSkill.skill_id == skill_id).scalar()
+            frequency = all_users_with_skill.count()
+            average_rating = float("{0:.2f}".format(rating_sum / frequency))
             skill_dict["frequency"] = frequency
             skill_dict["average_rating"] = average_rating
             result.append(skill_dict)
