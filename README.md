@@ -1,24 +1,31 @@
 # Hack The North Backend Challenge
+
 A RESTful API server implemented using Flask and SQLite database to store and work with the hackathon participants' data
 
 # Table of Contents
 
+- [Libraries and Dependencies](#libanddep)
 - [Start the Server Locally](#startserverlocally)
 	- [Populate database](#populatedb)
 	- [Start Server](#startserver)
 - [Database Design](#databasedesign)
-	- [Tables and Models](#tablesandmodels)
+	- [Models](#models)
 	- [Overview](#overview)
 	- [Company](#company)
 	- [User](#user)
 	- [Skill](#skill)
-	- [SkillWithRating](#skillwithrating)
-	- [users_skills](#users_skills)
+	- [UserSkill](#userskill)
 - [API](#api)
     - [Endpoints](#endpoints)
     - [/users](#users)
     - [/users/id](#users/id)
     - [/skills](#skills)
+
+# Libraries and Dependencies
+
+- Flask
+- Flask-SQLAlchemy for ORM
+- sqlite3 for raw sql queries when populating the initial db
 
 # Start the Server Locally
 
@@ -26,6 +33,9 @@ A RESTful API server implemented using Flask and SQLite database to store and wo
 
 Run the script `populate_db.py` to populate the SQLite database with data from: https://htn-interviews.firebaseio.com/users.json
 The database can be found under `HTN_BackendChallenge/db/data.db`
+Can be run with argument `--drop_all`, this will wipe the entire database before repopulating, default to `True`.
+
+The script creates 4 tables: `companies`, `users`, `skills` and `users_skills`, which is association object that links `User` to `Skill` with an additional column for the `rating`.
 
 ## Start Server
 
@@ -35,96 +45,77 @@ The database can be found under `HTN_BackendChallenge/db/data.db`
 
 # Database Design
 
-## Tables and Models
-
-### Tables
-
-- `companies`
-- `users`
-- `skills`
-- `skills_with_rating`
-- `users_skills`, junction table for `users` and `skills_with_rating`
-
-### Models
+## Models
 
 - `Company` for the `companies` table
 - `User` for the `users` table
-- `SkillWithRating` for the `skills_with_rating` table
 - `Skill` for the `skills` table
+- `UserSkill` for the `users_skills` table
 
 ## Overview
 
-It is also possible to get rid of `skills_with_rating` table altogether and link the `User` entity with `Skill` entity directly using and associative entity with an extra column for each association between the `user_id` and the `skill_id`...
-
 The relationships between the models are:
 - In a `Company`, there can be multiple `User` (1:m)
-- A `User` can have multiple `SkillWithRating` and a `SkillWithRating` can have multiple `User` because many users can give the same rating to the same skill. (m:m) This many-to-many relationship is linked by the association entity `users_skills`
-- A `Skill` can have multiple `SkillWithRating` (1:m)
+- A `User` can have multiple `Skill` and the same `Skill` can have multiple `User` (m:m)
+- `UserSkill` is an associative entity between `User` and `Skill`. It has an extra column `rating` that keeps track of the `rating` that a `User` give to a `Skill`.
 
 ## Company
 
 ```
-class Company(db.Model):  
-    __tablename__ = 'companies'  
+class Company(db.Model):
+    __tablename__ = 'companies'
 
-    company_id = db.Column(db.Integer, primary_key=True)  
-    company = db.Column(db.String(255), unique=True)  
-    users = db.relationship('User', backref='user', lazy=True)  
+    company_id = db.Column(db.Integer, primary_key=True)
+    company = db.Column(db.String(255), unique=True)
 ```
 
 ## User
 
 ```
-class User(db.Model):  
-    __tablename__ = 'users'  
+class User(db.Model):
+    __tablename__ = 'users'
 
-    user_id = db.Column(db.Integer, primary_key=True)  
-    email = db.Column(db.String(255), nullable=False, unique=True)  
-    name = db.Column(db.String(255), nullable=False)  
-    picture = db.Column(db.Text)  
-    company = db.Column(db.Integer, db.ForeignKey('companies.company_id'))  
-    phone = db.Column(db.String(255))  
-    latitude = db.Column(db.Float)  
-    longitude = db.Column(db.Float)  
+    user_id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(255), nullable=False, unique=True)
+    name = db.Column(db.String(255), nullable=False)
+    picture = db.Column(db.Text)
+    company = db.Column(db.Integer, db.ForeignKey('companies.company'))
+    phone = db.Column(db.String(255))
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
 
-    skills_with_rating = db.relationship("SkillWithRating", secondary=users_skills,  
-  lazy="dynamic", backref=db.backref("users", lazy="dynamic"))
+    skills = db.relationship("UserSkill", back_populates="user", lazy="dynamic"
 ```
 
 ## Skill
 
 ```
-class Skill(db.Model):  
-    __tablename__ = 'skills'  
+class Skill(db.Model):
+    __tablename__ = 'skills'
 
-    skill_id = db.Column(db.Integer, primary_key=True)  
-    skill_name = db.Column(db.String(255), nullable=False, unique=True)  
-    skill_with_ratings = db.relationship('SkillWithRating')
-```
-## SkillWithRating
+    skill_id = db.Column(db.Integer, primary_key=True)
+    skill_name = db.Column(db.String(255), nullable=False, unique=True)
 
-```
-class SkillWithRating(db.Model):  
-    __tablename__ = 'skills_with_rating'  
-
-	skill_with_rating_id = db.Column(db.Integer, primary_key=True)  
-    skill_name = db.Column(db.String(255), nullable=False)  
-    rating = db.Column(db.Integer, nullable=False)  
-    skill_id = db.Column(db.Integer, db.ForeignKey('skills.skill_id'))  
-
-    db.UniqueConstraint('skill_name', 'rating')
-```
-
-## users_skills
-
-Association entity betwen `User` and `SkillWithRating`
-maps a `user_id` to a `skill_with_rating_id`.
+    users = db.relationship("UserSkill", back_populates="skill", lazy="dynamic")
 
 ```
-users_skills = db.Table('users_skills',  
-  db.Column('user_id', db.Integer, db.ForeignKey('users.user_id'), primary_key=True),  
-  db.Column('skill_with_rating_id', db.Integer, db.ForeignKey('skills_with_rating.skill_with_rating_id'), primary_key=True)  
-)
+
+## UserSkill
+
+```
+class UserSkill(db.Model):
+    __tablename__ = 'users_skills'
+    __table_args__ = (
+        db.PrimaryKeyConstraint('user_id', 'skill_id'),
+    )
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
+    skill_id = db.Column(db.Integer, db.ForeignKey('skills.skill_id'))
+    rating = db.Column(db.Integer, nullable=False)
+
+    db.UniqueConstraint('user_id', 'user_id')
+    skill = db.relationship("Skill", back_populates="users")
+    user = db.relationship("User", back_populates="skills")
 ```
 
 # API
@@ -194,10 +185,6 @@ EXAMPLE:
             {
                 "name": "Android",
                 "rating": 9
-            },
-            {
-                "name": "Android",
-                "rating": 2
             }
         ]
     },

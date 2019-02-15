@@ -1,7 +1,5 @@
 from app import db
-from app.models.helper_tables.users_skills import users_skills
 from app.models.Company import Company
-
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -10,13 +8,12 @@ class User(db.Model):
     email = db.Column(db.String(255), nullable=False, unique=True)
     name = db.Column(db.String(255), nullable=False)
     picture = db.Column(db.Text)
-    company = db.Column(db.Integer, db.ForeignKey('companies.company_id'))
+    company = db.Column(db.Integer, db.ForeignKey('companies.company'))
     phone = db.Column(db.String(255))
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
 
-    skills_with_rating = db.relationship("SkillWithRating", secondary=users_skills,
-                                         lazy="dynamic", backref=db.backref("users", lazy="dynamic"))
+    skills = db.relationship("UserSkill", back_populates="user", lazy="dynamic")
 
     def __init__(self, email, name, picture, company, phone, latitude, longitude):
         self.email = email

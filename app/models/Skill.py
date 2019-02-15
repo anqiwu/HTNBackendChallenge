@@ -6,7 +6,8 @@ class Skill(db.Model):
 
     skill_id = db.Column(db.Integer, primary_key=True)
     skill_name = db.Column(db.String(255), nullable=False, unique=True)
-    skill_with_ratings = db.relationship('SkillWithRating')
+
+    users = db.relationship("UserSkill", back_populates="skill", lazy="dynamic")
 
     def __init__(self, skill_name):
         self.skill_name = skill_name
