@@ -2,7 +2,7 @@
 A RESTful API server implemented using Flask and SQLite database to store and work with the hackathon participants' data
 
 # Table of Contents
-- [Pyt]
+
 - [Start the Server Locally](#startserverlocally)
 	- [Populate database](#populatedb)
 	- [Start Server](#startserver)
@@ -53,6 +53,8 @@ The database can be found under `HTN_BackendChallenge/db/data.db`
 - `Skill` for the `skills` table
 
 ## Overview
+
+It is also possible to get rid of `skills_with_rating` table altogether and link the `User` entity with `Skill` entity directly using and associative entity with an extra column for each association between the `user_id` and the `skill_id`...
 
 The relationships between the models are:
 - In a `Company`, there can be multiple `User` (1:m)
