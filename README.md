@@ -4,11 +4,11 @@ A RESTful API server implemented using Flask and SQLite database to store and wo
 
 # Table of Contents
 
-- [Libraries and Dependencies](#Libraries and Dependencies)
-- [Start the Server Locally](#Start the Server Locally)
-	- [Populate database](#Populate database)
-	- [Start Server](#Start Server)
-- [Database Design](#Database Design)
+- [Libraries and Dependencies](#libanddep)
+- [Start the Server Locally](#startserverlocally)
+	- [Populate database](#populatedb)
+	- [Start Server](#startserver)
+- [Database Design](#databasedesign)
 	- [Models](#Models)
 	- [Overview](#Overview)
 	- [Company](#Company)
@@ -17,18 +17,21 @@ A RESTful API server implemented using Flask and SQLite database to store and wo
 	- [UserSkill](#UserSkill)
 - [API](#API)
     - [Endpoints](#Endpoints)
-    - [/users](#/users)
-    - [/users/id](#/users/id)
-    - [/skills](#/skills)
+    - [/users](#users)
+    - [/users/id](#/users_id)
+    - [/skills](#skills)
 
+<a name="libanddep"/>
 # Libraries and Dependencies
 
 - Flask
 - Flask-SQLAlchemy for ORM
 - sqlite3 for raw sql queries when populating the initial db 
 
+<a name="startserverlocally"/>
 # Start the Server Locally
 
+<a name="populatedb"/>
 ## Populate database
 
 Run the script `populate_db.py` to populate the SQLite database with data from: https://htn-interviews.firebaseio.com/users.json
@@ -37,12 +40,14 @@ Can be run with argument `--drop_all`, this will wipe the entire database before
 
 The script creates 4 tables: `companies`, `users`, `skills` and `users_skills`, which is association object that links `User` to `Skill` with an additional column for the `rating`.
 
+<a name="startserver"/>
 ## Start Server
 
 - start the venv, `source venv/Scripts/activate` from `HTN_Backend_Challenge` directory
 - In `HTN_BackendChallenge`, do `export FLASK_APP=app.py`
 - `python -m flask run` to start the server locally
 
+<a name="databasedesign"/>
 # Database Design
 
 ## Models
@@ -125,6 +130,7 @@ class UserSkill(db.Model):
 - /users/id
 - /skills
 
+<a name="users"/>
 ## /users
 
 ### GET request
@@ -192,6 +198,7 @@ EXAMPLE:
 ]
 ```
 
+<a name="user_id"/>
 ## /users/id
 
 ### GET request
@@ -290,6 +297,7 @@ to
 }
 ```
 
+<a name="skills"/>
 ## /skills
 
 ### GET request
