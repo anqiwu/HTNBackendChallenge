@@ -1,6 +1,7 @@
 from app import db
 from app.models.Company import Company
 
+
 class User(db.Model):
     __tablename__ = 'users'
 

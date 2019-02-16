@@ -1,7 +1,6 @@
 from app import db
 
 
-
 class Company(db.Model):
     __tablename__ = 'companies'
 
