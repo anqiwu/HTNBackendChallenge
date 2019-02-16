@@ -84,7 +84,7 @@ class User(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
 
-    skills = db.relationship("UserSkill", back_populates="user", lazy="dynamic"
+    skills = db.relationship("UserSkill", back_populates="user", lazy="dynamic")
 ```
 
 ## Skill
